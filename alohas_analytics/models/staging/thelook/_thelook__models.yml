@@ -1,0 +1,101 @@
+version: 2
+
+models:
+  - name: stg_thelook__order_items
+    description: >
+      One row per order line item. The grain of all downstream sales analysis.
+      A single order can contain multiple lines.
+    columns:
+      - name: order_item_id
+        description: Primary key. One row per physical unit sold.
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: Foreign key to stg_thelook__orders.
+        tests:
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: gross_revenue
+        description: Sale price before returns. USD in source.
+        tests:
+          - not_null
+  - name: stg_thelook__orders
+    description: >
+      One row per order. The grain of all downstream customer analysis.
+      A single order can contain multiple lines.
+    columns:
+      - name: order_id
+        description: Primary key. One row per order.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to stg_thelook__customers.
+        tests:
+          - not_null
+      - name: ordered_at
+        description: Date of the order. Used for time series analysis.
+        tests:
+          - not_null
+  - name: stg_thelook__users
+    description: >
+      One row per user. The grain of all downstream user analysis.
+    columns:
+      - name: user_id
+        description: Primary key. One row per user.
+        tests:
+          - unique
+          - not_null
+      - name: email
+        description: Email address of the user.
+        tests:
+          - not_null
+  - name: stg_thelook__products
+    description: >
+      One row per product. The grain of all downstream product analysis.
+    columns:
+      - name: product_id
+        description: Primary key. One row per product.
+        tests:
+          - unique
+          - not_null
+      - name: name
+        description: Name of the product. Null for 2 of ~29k products (~0.01% of revenue).
+          No discernible pattern — source defect, not a lifecycle state.
+          Coalesced to 'Unknown product' in dim_products.
+        tests:
+          - not_null:
+              severity: warn
+      - name: category
+        description: Category of the product.
+        tests:
+          - not_null
+  - name: stg_thelook__inventory_items
+    description: >
+      One row per inventory item. The grain of all downstream inventory analysis.
+    columns:
+      - name: inventory_item_id
+        description: Primary key. One row per inventory item.
+        tests:
+          - unique
+          - not_null
+      - name: product_id
+        description: Foreign key to stg_thelook__products.
+        tests:
+          - not_null
+  - name: stg_thelook__distribution_centers
+    description: >
+      One row per distribution center. The grain of all downstream distribution center analysis.
+    columns:
+      - name: distribution_center_id
+        description: Primary key. One row per distribution center.
+        tests:
+          - unique
+          - not_null
+      - name: distribution_center_geom
+        description: Location of the distribution center.
+        tests:
+          - not_null        
