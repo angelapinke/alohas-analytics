@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: thelook
+    description: Synthetic DTC fashion e-commerce data from BigQuery public datasets.
+    database: bigquery-public-data
+    schema: thelook_ecommerce
+    tables:
+      - name: order_items
+      - name: orders
+      - name: users
+      - name: products
+      - name: inventory_items
+      - name: distribution_centers
