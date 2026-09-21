@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: int_order_items__enriched
+    description: >
+      One row per order line, enriched with product attributes, unit cost,
+      customer country, currency and synthetic channel. Grain must match
+      stg_thelook__order_items exactly.
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('stg_thelook__order_items')
+    columns:
+      - name: order_item_id
+        tests:
+          - unique
+          - not_null
+      - name: local_currency
+        description: Selling currency, mapped from customer country via the channel_map seed.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('fx_rates')
+              field: currency
